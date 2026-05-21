@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rekap Leads — Podomoro Park Bandung</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #f0f4fa;
+  --surface: #ffffff;
+  --surface2: #f5f7fb;
+  --border: #dde3ee;
+  --border2: #c8d1e4;
+  --text: #1a2035;
+  --muted: #6b7a99;
+  --dim: #a0abbe;
+  --web: #2d7ff9;
+  --wi: #0faa86;
+  --ig: #e0457b;
+  --sosmed: #e8780a;
+  --fb: #7c5cdb;
+  --ci: #7288a8;
+  --accent: #2d7ff9;
+  --up: #0faa86;
+  --down: #e05353;
+  --neutral: #8492b0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid bg */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(45,127,249,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45,127,249,0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+.header-left {}
+.brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.title {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+}
+.subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-weight: 300;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  align-self: flex-start;
+}
+.tab {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 6px 14px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.18s;
+  letter-spacing: 0.04em;
+}
+.tab.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Month selector bar */
+.month-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.month-bar label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.month-select {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.month-select:focus { border-color: var(--accent); }
+.vs-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* Metric cards */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.metric-card:hover { border-color: var(--border2); }
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--ch-color, var(--accent));
+  opacity: 0.7;
+}
+.metric-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.metric-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+.metric-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.metric-delta {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+.delta-up { background: rgba(15,170,134,0.1); color: var(--up); }
+.delta-down { background: rgba(224,83,83,0.1); color: var(--down); }
+.delta-flat { background: rgba(132,146,176,0.12); color: var(--neutral); }
+
+/* Section header */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+/* Charts row */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 640px) { .charts-row { grid-template-columns: 1fr; } }
+.chart-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem 1.3rem;
+}
+.chart-box-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.chart-wrap { position: relative; height: 220px; }
+.chart-wrap-tall { position: relative; height: 260px; }
+
+/* Channel legend */
+.ch-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.ch-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+.ch-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Comparison table */
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.comp-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 0 12px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.comp-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text);
+}
+.comp-table tr:last-child td { border-bottom: none; }
+.comp-table tbody tr:hover { background: var(--surface2); }
+.comp-table .ch-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.comp-table .mono { font-family: 'DM Mono', monospace; }
+.comp-table .text-right { text-align: right; }
+.bar-mini {
+  height: 4px;
+  border-radius: 2px;
+  margin-top: 4px;
+  min-width: 2px;
+  transition: width 0.4s ease;
+}
+.td-bar { min-width: 80px; }
+
+/* Input modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 480px;
+  padding: 2rem;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.modal-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+.modal-close {
+  position: absolute;
+  top: 1.2rem; right: 1.2rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.modal-close:hover { background: var(--border); }
+
+.form-group { margin-bottom: 1rem; }
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.form-dot { width: 8px; height: 8px; border-radius: 2px; }
+.form-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--accent); }
+.form-month {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  outline: none;
+  width: 100%;
+  margin-bottom: 1.2rem;
+}
+.form-month:focus { border-color: var(--accent); }
+
+.btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  padding: 9px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  letter-spacing: 0.05em;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+.btn-primary:hover { opacity: 0.88; }
+.btn-secondary {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--muted);
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+
+/* Add month btn */
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px dashed var(--border2);
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 7px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.18s;
+  letter-spacing: 0.05em;
+}
+.btn-add:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Month list */
+.month-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+.month-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 4px 12px 4px 10px;
+  border-radius: 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.month-pill.active-a { border-color: var(--accent); color: var(--accent); background: rgba(79,156,249,0.08); }
+.month-pill.active-b { border-color: var(--wi); color: var(--wi); background: rgba(46,207,168,0.08); }
+.month-pill-del {
+  background: none; border: none; color: inherit; cursor: pointer;
+  font-size: 13px; line-height: 1; padding: 0; margin-left: 2px; opacity: 0.6;
+}
+.month-pill-del:hover { opacity: 1; }
+
+/* Bottom bar */
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0.5rem;
+}
+
+/* No data state */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--dim);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+}
+.empty-state span { display: block; font-size: 32px; margin-bottom: 10px; }
+
+/* Insight box */
+.insight-box {
+  background: rgba(45,127,249,0.05);
+  border: 1px solid rgba(45,127,249,0.18);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-top: 1.5rem;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.insight-box strong { color: var(--text); font-weight: 500; }
+
+
+/* All-time channel toggles */
+.ch-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 1rem;
+}
+.ch-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border2);
+  background: var(--surface2);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.ch-toggle.on {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--ch-col);
+  box-shadow: inset 0 0 0 1px var(--ch-col);
+}
+.ch-toggle-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.chart-box-full {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem 1.3rem;
+  margin-bottom: 14px;
+}
+.alltime-metric-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+.alltime-metric {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--ch-col, var(--accent));
+}
+.alltime-metric-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.alltime-metric-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+.alltime-metric-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="brand">Podomoro Park Bandung · Prodev</div>
+      <div class="title">Leads Tracker</div>
+      <div class="subtitle">Rekap & perbandingan sumber leads antar bulan</div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="setView('compare')">Perbandingan</button>
+      <button class="tab" onclick="setView('single')">Per Bulan</button>
+      <button class="tab" onclick="setView('alltime')">All Time</button>
+    </div>
+  </div>
+
+  <!-- Month Pills -->
+  <div class="section-head" style="margin-top:0">
+    <div class="section-title">Data Bulan</div>
+    <button class="btn-add" onclick="openModal()">＋ Tambah Bulan</button>
+  </div>
+  <div class="month-list" id="monthList"></div>
+
+  <!-- Compare selectors -->
+  <div class="month-bar" id="compareBar">
+    <label>Bulan A</label>
+    <select class="month-select" id="selA" onchange="render()"></select>
+    <div class="vs-badge">vs</div>
+    <label>Bulan B</label>
+    <select class="month-select" id="selB" onchange="render()"></select>
+  </div>
+
+  <!-- Single selector -->
+  <div class="month-bar" id="singleBar" style="display:none">
+    <label>Tampilkan bulan</label>
+    <select class="month-select" id="selSingle" onchange="render()"></select>
+  </div>
+
+  <!-- Metrics -->
+  <div id="mainContent">
+  <div class="metrics" id="metricsRow"></div>
+
+  <!-- Charts -->
+  <div class="section-head">
+    <div class="section-title">Visualisasi</div>
+  </div>
+  <div class="charts-row" id="chartsRow">
+    <div class="chart-box">
+      <div class="chart-box-title">Bar — jumlah per channel</div>
+      <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+      <div class="ch-legend" id="barLegend"></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-box-title">Donut — proporsi</div>
+      <div class="chart-wrap"><canvas id="donutChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Trend chart (compare mode) -->
+  <div class="chart-box" id="trendBox" style="display:none; margin-bottom: 14px;">
+    <div class="chart-box-title">Perbandingan channel A vs B</div>
+    <div class="chart-wrap-tall"><canvas id="trendChart"></canvas></div>
+  </div>
+
+  <!-- Table -->
+  <div class="section-head">
+    <div class="section-title">Detail Channel</div>
+  </div>
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:1.5rem;">
+    <table class="comp-table" id="detailTable">
+      <thead><tr>
+        <th>Channel</th>
+        <th class="text-right">Jumlah</th>
+        <th class="text-right">%</th>
+        <th>Distribusi</th>
+        <th class="text-right" id="thDelta"></th>
+      </tr></thead>
+      <tbody id="tableBody"></tbody>
+      <tfoot id="tableFoot"></tfoot>
+    </table>
+  </div>
+
+  <!-- Insight -->
+  <div class="insight-box" id="insightBox"></div>
+</div><!-- /mainContent -->
+
+</div><!-- /wrap -->
+
+
+<!-- All Time Section -->
+<div id="alltimeSection" style="display:none">
+  <div class="section-head" style="margin-top:0">
+    <div class="section-title">Ringkasan All Time</div>
+  </div>
+  <div class="alltime-metric-row" id="alltimeSummary"></div>
+
+  <div class="chart-box-full">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:1rem;">
+      <div class="chart-box-title" style="margin:0">Total leads per bulan</div>
+      <div class="ch-toggles" id="atToggles"></div>
+    </div>
+    <div style="position:relative; height:280px"><canvas id="atLineChart"></canvas></div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-box">
+      <div class="chart-box-title">Rata-rata per channel</div>
+      <div class="chart-wrap"><canvas id="atAvgBar"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-box-title">Komposisi total all time</div>
+      <div class="chart-wrap"><canvas id="atDonut"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-box-full">
+    <div class="chart-box-title">Stacked — kontribusi channel per bulan</div>
+    <div style="position:relative; height:260px"><canvas id="atStackBar"></canvas></div>
+  </div>
+
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:1.5rem; margin-top:1.5rem;">
+    <table class="comp-table" id="atTable">
+      <thead><tr id="atTableHead"></tr></thead>
+      <tbody id="atTableBody"></tbody>
+      <tfoot id="atTableFoot"></tfoot>
+    </table>
+  </div>
+
+  <div class="insight-box" id="atInsight"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-title">Input Data Bulan</div>
+    <div class="modal-sub">Masukkan jumlah leads per sumber untuk satu bulan</div>
+
+    <label class="form-label" style="font-size:11px; color:var(--muted); margin-bottom:4px; font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:.08em;">Bulan & Tahun</label>
+    <select class="form-month" id="inputMonth">
+      <option value="">— pilih bulan —</option>
+    </select>
+
+    <div id="channelInputs"></div>
+
+    <div class="bottom-bar" style="margin-top:1rem;">
+      <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+      <button class="btn btn-primary" style="width:auto; flex:1" onclick="saveMonth()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────
+const CHANNELS = [
+  { key: 'web',    label: 'Website',       code: 'WEB',    color: '#2d7ff9' },
+  { key: 'wi',     label: 'Walk-in',       code: 'WI',     color: '#0faa86' },
+  { key: 'ig',     label: 'Instagram',     code: 'IG',     color: '#e0457b' },
+  { key: 'sosmed', label: 'Sosmed lain',   code: 'Sosmed', color: '#e8780a' },
+  { key: 'fb',     label: 'Facebook',      code: 'FB',     color: '#7c5cdb' },
+  { key: 'ci',     label: 'Canvassing',    code: 'CI',     color: '#7288a8' },
+];
+
+const MONTH_NAMES = [
+  '', 'Januari','Februari','Maret','April','Mei','Juni',
+  'Juli','Agustus','September','Oktober','November','Desember'
+];
+
+// Pre-load data dari rekap sebelumnya
+const DEFAULT_DATA = {
+  '2026-01': { label: 'Januari 2026',  web: 55,  wi: 40, ig: 9,  sosmed: 0, fb: 18, ci: 1 },
+  '2026-02': { label: 'Februari 2026', web: 58,  wi: 47, ig: 17, sosmed: 0, fb: 35, ci: 1 },
+  '2026-03': { label: 'Maret 2026',    web: 50,  wi: 42, ig: 18, sosmed: 1, fb: 1,  ci: 1 },
+  '2026-04': { label: 'April 2026',    web: 117, wi: 57, ig: 8,  sosmed: 4, fb: 2,  ci: 1 },
+};
+let monthsData = JSON.parse(localStorage.getItem('leadsData') || 'null') || DEFAULT_DATA;
+Object.keys(DEFAULT_DATA).forEach(k => { if (!monthsData[k]) monthsData[k] = DEFAULT_DATA[k]; });
+
+let currentView = 'compare';
+let barChartInst = null;
+let donutChartInst = null;
+let trendChartInst = null;
+
+// ── Utils ─────────────────────────────────────────────────────────
+function save() { localStorage.setItem('leadsData', JSON.stringify(monthsData)); }
+
+function total(d) { return CHANNELS.reduce((s,c) => s + (d[c.key]||0), 0); }
+
+function fmtDelta(a, b) {
+  if (b === null || b === undefined || isNaN(b)) return null;
+  const diff = a - b;
+  const pct = b === 0 ? (a > 0 ? 100 : 0) : Math.round((diff/b)*100);
+  return { diff, pct };
+}
+
+function sortedKeys() {
+  return Object.keys(monthsData).sort();
+}
+
+// ── Month options population ───────────────────────────────────────
+function populateSelects() {
+  const keys = sortedKeys();
+  [document.getElementById('selA'), document.getElementById('selB'), document.getElementById('selSingle')].forEach(sel => {
+    const prev = sel.value;
+    sel.innerHTML = keys.length === 0
+      ? '<option value="">— belum ada data —</option>'
+      : keys.map(k => `<option value="${k}">${monthsData[k].label}</option>`).join('');
+    if (keys.includes(prev)) sel.value = prev;
+  });
+  // default A = latest, B = second latest
+  if (keys.length >= 2) {
+    const selA = document.getElementById('selA');
+    const selB = document.getElementById('selB');
+    if (!keys.includes(selA.value)) selA.value = keys[keys.length - 1];
+    if (!keys.includes(selB.value) || selB.value === selA.value) selB.value = keys[keys.length - 2];
+  } else if (keys.length === 1) {
+    document.getElementById('selA').value = keys[0];
+    document.getElementById('selB').value = keys[0];
+    document.getElementById('selSingle').value = keys[0];
+  }
+}
+
+// ── Month pills ────────────────────────────────────────────────────
+function renderPills() {
+  const keys = sortedKeys();
+  const selA = document.getElementById('selA').value;
+  const selB = document.getElementById('selB').value;
+  const selS = document.getElementById('selSingle').value;
+  const container = document.getElementById('monthList');
+  if (keys.length === 0) {
+    container.innerHTML = '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--dim)">Belum ada data — klik + Tambah Bulan</span>';
+    return;
+  }
+  container.innerHTML = keys.map(k => {
+    let cls = '';
+    if (currentView === 'compare') {
+      if (k === selA) cls = 'active-a';
+      else if (k === selB) cls = 'active-b';
+    } else {
+      if (k === selS) cls = 'active-a';
+    }
+    return `<div class="month-pill ${cls}" onclick="pillClick('${k}')">
+      ${monthsData[k].label}
+      <button class="month-pill-del" onclick="deleteMonth(event,'${k}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+function pillClick(k) {
+  if (currentView === 'compare') {
+    const selA = document.getElementById('selA');
+    const selB = document.getElementById('selB');
+    if (selA.value === k || selB.value !== k) { selA.value = k; }
+    else { selB.value = k; }
+  } else {
+    document.getElementById('selSingle').value = k;
+  }
+  render();
+}
+
+function deleteMonth(e, k) {
+  e.stopPropagation();
+  if (!confirm(`Hapus data ${monthsData[k].label}?`)) return;
+  delete monthsData[k];
+  save();
+  populateSelects();
+  render();
+}
+
+// ── View toggle ────────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&v==='compare')||(i===1&&v==='single')||(i===2&&v==='alltime')));
+  document.getElementById('compareBar').style.display = v === 'compare' ? 'flex' : 'none';
+  document.getElementById('singleBar').style.display = v === 'single' ? 'flex' : 'none';
+  document.getElementById('trendBox').style.display = v === 'compare' ? 'block' : 'none';
+  // Toggle main vs alltime sections
+  document.getElementById('mainContent').style.display = v === 'alltime' ? 'none' : 'block';
+  document.getElementById('alltimeSection').style.display = v === 'alltime' ? 'block' : 'none';
+  if (v === 'alltime') { renderAllTime(); }
+  else { render(); }
+}
+
+// ── Render ─────────────────────────────────────────────────────────
+function render() {
+  renderPills();
+  const keys = sortedKeys();
+  if (keys.length === 0) {
+    document.getElementById('metricsRow').innerHTML = `<div class="empty-state"><span>📭</span>Belum ada data. Klik "Tambah Bulan" untuk mulai.</div>`;
+    document.getElementById('tableBody').innerHTML = '';
+    document.getElementById('tableFoot').innerHTML = '';
+    document.getElementById('insightBox').innerHTML = '';
+    destroyCharts();
+    return;
+  }
+
+  if (currentView === 'compare') renderCompare();
+  else renderSingle();
+}
+
+function renderSingle() {
+  const k = document.getElementById('selSingle').value;
+  if (!k || !monthsData[k]) return;
+  const d = monthsData[k];
+  const tot = total(d);
+
+  renderMetrics([{ data: d, label: d.label }], null);
+  renderBarChart([d], [d.label], false);
+  renderDonut(d);
+  renderTable([d], null);
+  document.getElementById('thDelta').textContent = '';
+  renderInsight(d, null, d.label, '');
+}
+
+function renderCompare() {
+  const kA = document.getElementById('selA').value;
+  const kB = document.getElementById('selB').value;
+  if (!kA || !monthsData[kA]) return;
+  const dA = monthsData[kA];
+  const dB = kB && monthsData[kB] && kB !== kA ? monthsData[kB] : null;
+
+  renderMetrics([{ data: dA, label: dA.label }], dB);
+  renderBarChart([dA, dB].filter(Boolean), [dA.label, dB ? dB.label : ''].filter(Boolean), !!dB);
+  renderDonut(dA);
+  renderTable([dA], dB);
+  document.getElementById('thDelta').textContent = dB ? `Δ vs ${dB.label}` : '';
+  renderInsight(dA, dB, dA.label, dB ? dB.label : '');
+
+  if (dB) renderTrendChart(dA, dB, dA.label, dB.label);
+  else { if (trendChartInst) { trendChartInst.destroy(); trendChartInst = null; } }
+}
+
+// ── Metrics ────────────────────────────────────────────────────────
+function renderMetrics(months, compareData) {
+  const d = months[0].data;
+  const tot = total(d);
+  const totB = compareData ? total(compareData) : null;
+
+  const cards = [
+    { label: 'Total Leads', val: tot, pct: '', color: '#4f9cf9', compare: totB },
+    ...CHANNELS.map(ch => ({
+      label: ch.label,
+      val: d[ch.key] || 0,
+      pct: tot ? `${Math.round((d[ch.key]||0)/tot*100)}%` : '0%',
+      color: ch.color,
+      compare: compareData ? (compareData[ch.key] || 0) : null
+    }))
+  ];
+
+  document.getElementById('metricsRow').innerHTML = cards.map(c => {
+    const delta = c.compare !== null ? fmtDelta(c.val, c.compare) : null;
+    let deltaHtml = '';
+    if (delta) {
+      const cls = delta.diff > 0 ? 'delta-up' : delta.diff < 0 ? 'delta-down' : 'delta-flat';
+      const sign = delta.diff > 0 ? '+' : '';
+      deltaHtml = `<div class="metric-delta ${cls}">${sign}${delta.diff} (${sign}${delta.pct}%)</div>`;
+    }
+    return `<div class="metric-card" style="--ch-color:${c.color}">
+      <div class="metric-label">${c.label}</div>
+      <div class="metric-val">${c.val}</div>
+      <div class="metric-pct">${c.pct}</div>
+      ${deltaHtml}
+    </div>`;
+  }).join('');
+}
+
+// ── Bar Chart ──────────────────────────────────────────────────────
+function renderBarChart(datasets, monthLabels, isCompare) {
+  if (barChartInst) { barChartInst.destroy(); barChartInst = null; }
+  const ctx = document.getElementById('barChart').getContext('2d');
+  const chLabels = CHANNELS.map(c => c.code);
+
+  const ds = datasets.map((d, i) => ({
+    label: monthLabels[i],
+    data: CHANNELS.map(c => d[c.key] || 0),
+    backgroundColor: isCompare
+      ? (i === 0 ? CHANNELS.map(c => c.color + 'cc') : CHANNELS.map(() => '#0001'))
+      : CHANNELS.map(c => c.color + 'cc'),
+    borderColor: isCompare
+      ? (i === 0 ? CHANNELS.map(c => c.color) : CHANNELS.map(() => '#bbb'))
+      : CHANNELS.map(c => c.color),
+    borderWidth: 1.5,
+    borderRadius: 4,
+  }));
+
+  barChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: chLabels, datasets: ds },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: isCompare, labels: { color: '#6b7a99', font: { family: 'DM Mono', size: 10 }, boxWidth: 10, boxHeight: 10 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}` } }
+      },
+      scales: {
+        x: { ticks: { color: '#6b7a99', font: { family: 'DM Mono', size: 10 } }, grid: { color: '#dde3ee' } },
+        y: { ticks: { color: '#6b7a99', font: { family: 'DM Mono', size: 10 } }, grid: { color: '#dde3ee' }, beginAtZero: true }
+      }
+    }
+  });
+
+  // Legend
+  document.getElementById('barLegend').innerHTML = CHANNELS.map(c =>
+    `<div class="ch-legend-item"><div class="ch-dot" style="background:${c.color}"></div>${c.code}</div>`
+  ).join('');
+}
+
+// ── Donut Chart ────────────────────────────────────────────────────
+function renderDonut(d) {
+  if (donutChartInst) { donutChartInst.destroy(); donutChartInst = null; }
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  const tot = total(d);
+  donutChartInst = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: CHANNELS.map(c => c.label),
+      datasets: [{
+        data: CHANNELS.map(c => d[c.key] || 0),
+        backgroundColor: CHANNELS.map(c => c.color + 'cc'),
+        borderColor: CHANNELS.map(c => c.color),
+        borderWidth: 1.5,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: { display: true, position: 'right', labels: { color: '#6b7a99', font: { family: 'DM Mono', size: 10 }, boxWidth: 10, boxHeight: 10, padding: 10 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} (${tot ? Math.round(ctx.parsed/tot*100) : 0}%)` } }
+      }
+    }
+  });
+}
+
+// ── Trend / Compare Bar Chart ──────────────────────────────────────
+function renderTrendChart(dA, dB, labelA, labelB) {
+  if (trendChartInst) { trendChartInst.destroy(); trendChartInst = null; }
+  document.getElementById('trendBox').style.display = 'block';
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  trendChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: CHANNELS.map(c => c.label),
+      datasets: [
+        { label: labelA, data: CHANNELS.map(c => dA[c.key]||0), backgroundColor: '#2d7ff9bb', borderColor: '#2d7ff9', borderWidth: 1.5, borderRadius: 4 },
+        { label: labelB, data: CHANNELS.map(c => dB[c.key]||0), backgroundColor: '#0faa86bb', borderColor: '#0faa86', borderWidth: 1.5, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#6b7a99', font: { family: 'DM Mono', size: 10 }, boxWidth: 10, boxHeight: 10 } }
+      },
+      scales: {
+        x: { ticks: { color: '#6b7a99', font: { family: 'DM Mono', size: 10 } }, grid: { color: '#dde3ee' } },
+        y: { ticks: { color: '#6b7a99', font: { family: 'DM Mono', size: 10 } }, grid: { color: '#dde3ee' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ── Table ──────────────────────────────────────────────────────────
+function renderTable(datasets, compareData) {
+  const d = datasets[0];
+  const tot = total(d);
+  const maxVal = Math.max(...CHANNELS.map(c => d[c.key]||0), 1);
+
+  const rows = CHANNELS.map(ch => {
+    const val = d[ch.key] || 0;
+    const pct = tot ? Math.round(val/tot*100) : 0;
+    const barW = Math.round(val/maxVal*100);
+    const delta = compareData ? fmtDelta(val, compareData[ch.key]||0) : null;
+    let deltaCell = '<td></td>';
+    if (delta !== null) {
+      const cls = delta.diff > 0 ? 'delta-up' : delta.diff < 0 ? 'delta-down' : 'delta-flat';
+      const sign = delta.diff > 0 ? '+' : '';
+      deltaCell = `<td class="text-right"><span class="metric-delta ${cls}" style="display:inline-flex">${sign}${delta.diff}</span></td>`;
+    }
+    return `<tr>
+      <td><div class="ch-name"><div class="ch-dot" style="background:${ch.color};width:8px;height:8px;border-radius:2px"></div>${ch.label}</div></td>
+      <td class="text-right mono">${val}</td>
+      <td class="text-right mono">${pct}%</td>
+      <td class="td-bar"><div class="bar-mini" style="background:${ch.color};width:${barW}%"></div></td>
+      ${deltaCell}
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tableBody').innerHTML = rows;
+  const totDelta = compareData ? fmtDelta(tot, total(compareData)) : null;
+  let totDeltaCell = '<td></td>';
+  if (totDelta) {
+    const cls = totDelta.diff > 0 ? 'delta-up' : totDelta.diff < 0 ? 'delta-down' : 'delta-flat';
+    const sign = totDelta.diff > 0 ? '+' : '';
+    totDeltaCell = `<td class="text-right"><span class="metric-delta ${cls}" style="display:inline-flex">${sign}${totDelta.diff}</span></td>`;
+  }
+  document.getElementById('tableFoot').innerHTML = `
+    <tr style="background:var(--surface2); border-top: 1px solid var(--border)">
+      <td style="font-weight:500">Total</td>
+      <td class="text-right mono" style="font-weight:500">${tot}</td>
+      <td class="text-right mono">100%</td>
+      <td></td>
+      ${totDeltaCell}
+    </tr>`;
+}
+
+// ── Insight ────────────────────────────────────────────────────────
+function renderInsight(dA, dB, labelA, labelB) {
+  const totA = total(dA);
+  const topCh = CHANNELS.slice().sort((a,b) => (dA[b.key]||0)-(dA[a.key]||0))[0];
+  const topPct = totA ? Math.round((dA[topCh.key]||0)/totA*100) : 0;
+
+  let text = `<strong>${labelA}</strong>: total <strong>${totA} leads</strong>. Sumber terbesar adalah <strong style="color:${topCh.color}">${topCh.label} (${dA[topCh.key]||0}, ${topPct}%)</strong>.`;
+
+  if (dB) {
+    const totB = total(dB);
+    const diff = totA - totB;
+    const pct = totB ? Math.abs(Math.round(diff/totB*100)) : 0;
+    const dir = diff > 0 ? `naik <strong style="color:var(--up)">+${diff} (${pct}%)</strong>` : diff < 0 ? `turun <strong style="color:var(--down)">${diff} (${pct}%)</strong>` : `sama`;
+    text += ` Dibanding <strong>${labelB}</strong> (${totB} leads), total ${dir}.`;
+
+    // channel terbesar perubahannya
+    const biggest = CHANNELS.slice().sort((a,b) => Math.abs((dA[b.key]||0)-(dB[b.key]||0)) - Math.abs((dA[a.key]||0)-(dB[a.key]||0)))[0];
+    const bDiff = (dA[biggest.key]||0) - (dB[biggest.key]||0);
+    if (bDiff !== 0) {
+      const bDir = bDiff > 0 ? `naik +${bDiff}` : `turun ${bDiff}`;
+      text += ` Channel dengan perubahan terbesar: <strong style="color:${biggest.color}">${biggest.label}</strong> ${bDir}.`;
+    }
+  }
+
+  document.getElementById('insightBox').innerHTML = text;
+}
+
+
+// ── All Time Charts ───────────────────────────────────────────────
+let atLineInst = null, atAvgInst = null, atDonutInst = null, atStackInst = null;
+let atActiveChannels = new Set(CHANNELS.map(c => c.key));
+
+function destroyAtCharts() {
+  [atLineInst, atAvgInst, atDonutInst, atStackInst].forEach(c => { if(c) c.destroy(); });
+  atLineInst = atAvgInst = atDonutInst = atStackInst = null;
+}
+
+function renderAllTime() {
+  destroyAtCharts();
+  const keys = sortedKeys();
+  if (keys.length === 0) return;
+  const months = keys.map(k => ({ key: k, label: monthsData[k].label.replace(' 20', " '"), data: monthsData[k] }));
+
+  // Summary metrics
+  const totals = {};
+  CHANNELS.forEach(ch => { totals[ch.key] = months.reduce((s, m) => s + (m.data[ch.key]||0), 0); });
+  const grandTotal = CHANNELS.reduce((s, ch) => s + totals[ch.key], 0);
+  const maxMonth = months.reduce((best, m) => total(m.data) > total(best.data) ? m : best, months[0]);
+  const minMonth = months.reduce((best, m) => total(m.data) < total(best.data) ? m : best, months[0]);
+  const avgTotal = Math.round(grandTotal / months.length);
+
+  document.getElementById('alltimeSummary').innerHTML = [
+    { label: 'Grand Total', val: grandTotal, sub: `${months.length} bulan`, col: '#2d7ff9' },
+    { label: 'Rata-rata/bulan', val: avgTotal, sub: 'leads', col: '#7c5cdb' },
+    { label: 'Bulan terbaik', val: total(maxMonth.data), sub: maxMonth.label.replace(" '", ' 20'), col: '#0faa86' },
+    { label: 'Bulan terendah', val: total(minMonth.data), sub: minMonth.label.replace(" '", ' 20'), col: '#e05353' },
+  ].map(m => `<div class="alltime-metric" style="--ch-col:${m.col}">
+    <div class="alltime-metric-label">${m.label}</div>
+    <div class="alltime-metric-val">${m.val}</div>
+    <div class="alltime-metric-sub">${m.sub}</div>
+  </div>`).join('');
+
+  // Channel toggles
+  document.getElementById('atToggles').innerHTML = CHANNELS.map(ch =>
+    `<div class="ch-toggle on" style="--ch-col:${ch.color}" onclick="toggleAtChannel('${ch.key}', this)" data-key="${ch.key}">
+      <div class="ch-toggle-dot" style="background:${ch.color}"></div>${ch.code}
+    </div>`
+  ).join('');
+
+  renderAtCharts(months, totals, grandTotal);
+}
+
+function toggleAtChannel(key, el) {
+  if (atActiveChannels.has(key)) {
+    if (atActiveChannels.size <= 1) return;
+    atActiveChannels.delete(key);
+    el.classList.remove('on');
+  } else {
+    atActiveChannels.add(key);
+    el.classList.add('on');
+  }
+  const keys = sortedKeys();
+  const months = keys.map(k => ({ key: k, label: monthsData[k].label.replace(' 20', " '"), data: monthsData[k] }));
+  const totals = {};
+  CHANNELS.forEach(ch => { totals[ch.key] = months.reduce((s, m) => s + (m.data[ch.key]||0), 0); });
+  const grandTotal = CHANNELS.reduce((s, ch) => s + totals[ch.key], 0);
+  renderAtCharts(months, totals, grandTotal);
+}
+
+function renderAtCharts(months, totals, grandTotal) {
+  const activeCh = CHANNELS.filter(ch => atActiveChannels.has(ch.key));
+  const monthLabels = months.map(m => m.label);
+  const TICK = { color: '#6b7a99', font: { family: 'DM Mono', size: 10 } };
+  const GRID = { color: '#dde3ee' };
+
+  // Line chart — total per bulan + per channel lines
+  if (atLineInst) { atLineInst.destroy(); atLineInst = null; }
+  const lineDS = [
+    {
+      label: 'Total',
+      data: months.map(m => total(m.data)),
+      borderColor: '#2d7ff9',
+      backgroundColor: 'rgba(45,127,249,0.08)',
+      borderWidth: 2.5,
+      pointRadius: 5,
+      pointBackgroundColor: '#2d7ff9',
+      tension: 0.35,
+      fill: true,
+      order: 0,
+    },
+    ...activeCh.map(ch => ({
+      label: ch.label,
+      data: months.map(m => m.data[ch.key]||0),
+      borderColor: ch.color,
+      backgroundColor: 'transparent',
+      borderWidth: 1.5,
+      pointRadius: 3,
+      pointBackgroundColor: ch.color,
+      tension: 0.35,
+      borderDash: [4,3],
+      fill: false,
+      order: 1,
+    }))
+  ];
+  atLineInst = new Chart(document.getElementById('atLineChart').getContext('2d'), {
+    type: 'line',
+    data: { labels: monthLabels, datasets: lineDS },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: '#6b7a99', font: { family: 'DM Mono', size: 10 }, boxWidth: 10, boxHeight: 2, padding: 12 } } },
+      scales: { x: { ticks: TICK, grid: GRID }, y: { ticks: TICK, grid: GRID, beginAtZero: true } }
+    }
+  });
+
+  // Avg bar
+  if (atAvgInst) { atAvgInst.destroy(); atAvgInst = null; }
+  atAvgInst = new Chart(document.getElementById('atAvgBar').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: activeCh.map(c => c.code),
+      datasets: [{
+        data: activeCh.map(ch => Math.round(totals[ch.key] / months.length * 10) / 10),
+        backgroundColor: activeCh.map(c => c.color + 'cc'),
+        borderColor: activeCh.map(c => c.color),
+        borderWidth: 1.5,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` avg: ${ctx.parsed.y}` } } },
+      scales: { x: { ticks: TICK, grid: GRID }, y: { ticks: TICK, grid: GRID, beginAtZero: true } }
+    }
+  });
+
+  // Donut all-time komposisi
+  if (atDonutInst) { atDonutInst.destroy(); atDonutInst = null; }
+  atDonutInst = new Chart(document.getElementById('atDonut').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: activeCh.map(c => c.label),
+      datasets: [{
+        data: activeCh.map(ch => totals[ch.key]),
+        backgroundColor: activeCh.map(c => c.color + 'cc'),
+        borderColor: activeCh.map(c => c.color),
+        borderWidth: 1.5,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: { display: true, position: 'right', labels: { color: '#6b7a99', font: { family: 'DM Mono', size: 10 }, boxWidth: 10, boxHeight: 10, padding: 10 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} (${grandTotal ? Math.round(ctx.parsed/grandTotal*100) : 0}%)` } }
+      }
+    }
+  });
+
+  // Stacked bar
+  if (atStackInst) { atStackInst.destroy(); atStackInst = null; }
+  atStackInst = new Chart(document.getElementById('atStackBar').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: monthLabels,
+      datasets: activeCh.map(ch => ({
+        label: ch.label,
+        data: months.map(m => m.data[ch.key]||0),
+        backgroundColor: ch.color + 'cc',
+        borderColor: ch.color,
+        borderWidth: 1,
+        borderRadius: 2,
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: '#6b7a99', font: { family: 'DM Mono', size: 10 }, boxWidth: 10, boxHeight: 10, padding: 10 } } },
+      scales: {
+        x: { stacked: true, ticks: TICK, grid: GRID },
+        y: { stacked: true, ticks: TICK, grid: GRID, beginAtZero: true }
+      }
+    }
+  });
+
+  // Table
+  const head = document.getElementById('atTableHead');
+  head.innerHTML = '<th>Channel</th>' + months.map(m => `<th class="text-right">${m.label}</th>`).join('') + '<th class="text-right" style="color:var(--accent)">Total</th><th class="text-right">Avg</th>';
+
+  document.getElementById('atTableBody').innerHTML = activeCh.map(ch => {
+    const cells = months.map(m => `<td class="text-right mono">${m.data[ch.key]||0}</td>`).join('');
+    const rowTotal = months.reduce((s,m) => s+(m.data[ch.key]||0), 0);
+    const rowAvg = (rowTotal/months.length).toFixed(1);
+    return `<tr>
+      <td><div class="ch-name"><div class="ch-dot" style="background:${ch.color};width:8px;height:8px;border-radius:2px"></div>${ch.label}</div></td>
+      ${cells}
+      <td class="text-right mono" style="font-weight:500;color:var(--accent)">${rowTotal}</td>
+      <td class="text-right mono" style="color:var(--muted)">${rowAvg}</td>
+    </tr>`;
+  }).join('');
+
+  const totCells = months.map(m => `<td class="text-right mono" style="font-weight:500">${total(m.data)}</td>`).join('');
+  document.getElementById('atTableFoot').innerHTML = `<tr style="background:var(--surface2); border-top:1px solid var(--border)">
+    <td style="font-weight:500">Total</td>${totCells}
+    <td class="text-right mono" style="font-weight:500;color:var(--accent)">${grandTotal}</td>
+    <td class="text-right mono" style="color:var(--muted)">${(grandTotal/months.length).toFixed(1)}</td>
+  </tr>`;
+
+  // Insight
+  const topCh = CHANNELS.slice().sort((a,b) => totals[b.key]-totals[a.key])[0];
+  const topPct = grandTotal ? Math.round(totals[topCh.key]/grandTotal*100) : 0;
+  const trend = months.length >= 2 ? total(months[months.length-1].data) - total(months[0].data) : 0;
+  const trendDir = trend > 0 ? `<strong style="color:var(--up)">naik +${trend}</strong>` : trend < 0 ? `<strong style="color:var(--down)">turun ${trend}</strong>` : 'stabil';
+  const _maxM = months.reduce((best, m) => total(m.data) > total(best.data) ? m : best, months[0]);
+  const _maxLabel = _maxM.label.replace(" '", ' 20');
+  document.getElementById('atInsight').innerHTML = `
+    Dari <strong>${months.length} bulan</strong> data, grand total leads adalah <strong>${grandTotal}</strong> dengan rata-rata <strong>${Math.round(grandTotal/months.length)} leads/bulan</strong>.
+    Sumber dominan: <strong style="color:${topCh.color}">${topCh.label} (${totals[topCh.key]}, ${topPct}%)</strong>.
+    Bulan terbaik: <strong>${_maxLabel}</strong> dengan ${total(_maxM.data)} leads.
+    Tren dari bulan pertama ke terakhir: ${trendDir} leads.
+  `;
+}
+
+function destroyCharts() {
+  if (barChartInst) { barChartInst.destroy(); barChartInst = null; }
+  if (donutChartInst) { donutChartInst.destroy(); donutChartInst = null; }
+  if (trendChartInst) { trendChartInst.destroy(); trendChartInst = null; }
+}
+
+// ── Modal ──────────────────────────────────────────────────────────
+function buildMonthOptions() {
+  const sel = document.getElementById('inputMonth');
+  const now = new Date();
+  let opts = '<option value="">— pilih bulan —</option>';
+  for (let y = now.getFullYear(); y >= 2023; y--) {
+    for (let m = (y === now.getFullYear() ? now.getMonth()+1 : 12); m >= 1; m--) {
+      const key = `${y}-${String(m).padStart(2,'0')}`;
+      const exists = monthsData[key] ? ' (edit)' : '';
+      opts += `<option value="${key}">${MONTH_NAMES[m]} ${y}${exists}</option>`;
+    }
+  }
+  sel.innerHTML = opts;
+}
+
+function openModal(prefillKey) {
+  buildMonthOptions();
+  const sel = document.getElementById('inputMonth');
+  if (prefillKey) sel.value = prefillKey;
+
+  const d = prefillKey && monthsData[prefillKey] ? monthsData[prefillKey] : {};
+  document.getElementById('channelInputs').innerHTML = CHANNELS.map(ch =>
+    `<div class="form-group">
+      <label class="form-label"><div class="form-dot" style="background:${ch.color}"></div>${ch.label} <span style="font-size:10px;color:var(--dim)">(${ch.code})</span></label>
+      <input class="form-input" type="number" min="0" id="inp_${ch.key}" placeholder="0" value="${d[ch.key] !== undefined ? d[ch.key] : ''}">
+    </div>`
+  ).join('');
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+function saveMonth() {
+  const key = document.getElementById('inputMonth').value;
+  if (!key) { alert('Pilih bulan terlebih dahulu.'); return; }
+  const [y, m] = key.split('-').map(Number);
+  const entry = { label: `${MONTH_NAMES[m]} ${y}` };
+  let hasData = false;
+  CHANNELS.forEach(ch => {
+    const v = parseInt(document.getElementById(`inp_${ch.key}`).value) || 0;
+    entry[ch.key] = v;
+    if (v > 0) hasData = true;
+  });
+  if (!hasData) { if (!confirm('Semua nilai 0. Tetap simpan?')) return; }
+  monthsData[key] = entry;
+  save();
+  closeModal();
+  populateSelects();
+  render();
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+save();
+populateSelects();
+setView('compare');
+</script>
+</body>
+</html>
